@@ -3,13 +3,14 @@ import { FiSend, FiUser, FiMessageSquare } from 'react-icons/fi';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
-    { 
-      id: 1, 
-      text: "Hi! I'm your book assistant. Ask me anything about books or topics you're interested in.", 
-      isUser: false 
+    {
+      id: 1,
+      text: "Hi! I'm your smart book assistant 🤖. Ask me anything about books, authors, genres, or recommendations!",
+      isUser: false
     }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -20,78 +21,87 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
-    
-    // Add user message
+
     const userMessage = {
       id: messages.length + 1,
       text: inputValue,
       isUser: true
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
-    
-    // Simulate bot response after a delay
+    setLoading(true);
+
+    // Simulate API thinking delay
     setTimeout(() => {
-      const botResponse = generateResponse(inputValue);
-      setMessages(prev => [...prev, {
-        id: messages.length + 2,
-        text: botResponse,
-        isUser: false
-      }]);
-    }, 800);
+      const botResponse = generateSmartResponse(inputValue);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: botResponse,
+          isUser: false
+        }
+      ]);
+      setLoading(false);
+    }, 1000);
   };
 
-  const generateResponse = (userInput) => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('good for beginners') || input.includes('beginner')) {
-      return "This book is excellent for beginners! It starts with basic concepts and gradually builds up complexity.";
-    } else if (input.includes('horror') || input.includes('scary')) {
-      return "For horror books, I recommend checking out 'The Shining' by Stephen King or 'House of Leaves' by Mark Z. Danielewski.";
-    } else if (input.includes('finance') || input.includes('money')) {
-      return "Popular finance books include 'Rich Dad Poor Dad' by Robert Kiyosaki and 'The Intelligent Investor' by Benjamin Graham.";
-    } else if (input.includes('love') || input.includes('romance')) {
-      return "Great romance books are 'Pride and Prejudice' by Jane Austen or 'The Notebook' by Nicholas Sparks.";
-    } else if (input.includes('summary') || input.includes('about')) {
-      return "This book explores deep themes through its narrative. Without spoilers, it's about personal growth and overcoming challenges.";
-    } else {
-      const genericResponses = [
-        "That's an interesting question about this book. I recommend checking the reviews section for more insights.",
-        "I'd suggest reading the book description and reviews to better understand if it matches your interests.",
-        "This book covers that topic in depth, especially in chapters 3-5.",
-        "Many readers find this book helpful for that subject. Would you like recommendations for similar books?"
-      ];
-      return genericResponses[Math.floor(Math.random() * genericResponses.length)];
+  const generateSmartResponse = (input) => {
+    const q = input.toLowerCase();
+
+    if (q.includes('recommend') || q.includes('suggest')) {
+      return "Sure! 📚 Try 'Sapiens' for history lovers, 'The Alchemist' for fiction fans, or 'Atomic Habits' for self-help.";
     }
+    if (q.includes('beginner') || q.includes('easy')) {
+      return "For beginners, 'Rich Dad Poor Dad' (finance), 'The Subtle Art of Not Giving a F*ck' (self-help), and 'Harry Potter' (fiction) are great picks!";
+    }
+    if (q.includes('horror')) {
+      return "You’ll love 'The Shining' by Stephen King or 'Mexican Gothic' by Silvia Moreno-Garcia 👻";
+    }
+    if (q.includes('romance') || q.includes('love')) {
+      return "'The Notebook', 'Me Before You', and 'It Ends With Us' are popular romance books 💕";
+    }
+    if (q.includes('finance') || q.includes('money')) {
+      return "'The Psychology of Money' and 'The Intelligent Investor' are solid finance reads 💸";
+    }
+    if (q.includes('summary') || q.includes('what is')) {
+      return "It’s a deep dive into human behavior, growth, and purpose. Want a detailed summary?";
+    }
+
+    // Default random smart fallback
+    const replies = [
+      "That's a great question! Let me search some book suggestions for you.",
+      "Try exploring similar genres or authors. Want recommendations?",
+      "This topic is covered in Chapter 2 of most relevant books.",
+      "You might enjoy reading book reviews from other readers as well."
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
   };
 
   return (
-    <section id="chatbot" className="max-w-6xl mx-auto px-4 py-12">
+    <section id="chatbot" className="max-w-4xl mx-auto px-4 py-12">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-            <FiMessageSquare className="mr-2" /> Book Assistant
+            <FiMessageSquare className="mr-2" /> Smart Book Assistant
           </h2>
         </div>
-        
+
         <div className="h-96 overflow-y-auto p-4 space-y-4">
           {messages.map(message => (
-            <div 
-              key={message.id} 
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-xs md:max-w-md rounded-lg p-3 ${message.isUser 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
-              >
-                <div className="flex items-start">
-                  <div className={`p-1 rounded-full mr-2 ${message.isUser 
-                    ? 'bg-blue-600' 
-                    : 'bg-gray-300 dark:bg-gray-600'}`}
-                  >
+            <div key={message.id} className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-xs md:max-w-md rounded-lg p-3 ${
+                message.isUser
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+              }`}>
+                <div className="flex items-start gap-2">
+                  <div className={`p-1 rounded-full ${
+                    message.isUser ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                  }`}>
                     <FiUser className={message.isUser ? 'text-white' : 'text-gray-700 dark:text-gray-300'} />
                   </div>
                   <p>{message.text}</p>
@@ -99,17 +109,24 @@ const Chatbot = () => {
               </div>
             </div>
           ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 max-w-xs md:max-w-md rounded-lg p-3">
+                <div className="animate-pulse text-sm italic">Typing...</div>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
-        
+
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ask about books or topics..."
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Ask about books, authors, genres..."
               className="flex-1 border border-gray-300 dark:border-gray-600 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             />
             <button
